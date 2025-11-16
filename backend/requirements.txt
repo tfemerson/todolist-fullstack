@@ -1,0 +1,8 @@
+# FastAPI后端依赖包
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+motor==3.6.0
+pymongo>=4.9,<4.10
+pydantic==2.5.0
+python-dotenv==1.0.0
+python-multipart==0.0.6

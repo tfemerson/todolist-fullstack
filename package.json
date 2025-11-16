@@ -1,0 +1,20 @@
+{
+  "name": "solidjs-todo-app",
+  "version": "1.0.0",
+  "description": "智能待办事项清单 - SolidJS 版本",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "solid-js": "^1.8.11"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vite-plugin-solid": "^2.8.2"
+  }
+} 

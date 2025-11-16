@@ -1,0 +1,69 @@
+# Docker Compose配置文件 - 全栈应用编排
+version: '3.8'
+services:
+  # MongoDB数据库服务
+  mongo:
+    image: mongo:7.0
+    container_name: todolist_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: todolist_db
+    volumes:
+      # 数据持久化
+      - mongo_data:/data/db
+      # 初始化脚本
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - todolist_network
+
+  # FastAPI后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todolist_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://mongo:27017
+      - DATABASE_NAME=todolist_db
+    depends_on:
+      - mongo
+    volumes:
+      # 开发时代码热重载
+      - ./backend:/app
+    networks:
+      - todolist_network
+
+  # SolidJS前端服务
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: todolist_frontend
+    restart: unless-stopped
+    ports:
+      - "3100:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    volumes:
+      # 开发时代码热重载
+      - .:/app
+      - /app/node_modules
+    networks:
+      - todolist_network
+
+# 数据卷定义
+volumes:
+  mongo_data:
+    driver: local
+
+# 网络定义
+networks:
+  todolist_network:
+    driver: bridge
