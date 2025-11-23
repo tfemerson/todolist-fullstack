@@ -6,35 +6,42 @@ services:
   mongo:
     image: mongo:7.0
     container_name: todolist_mongo
-    restart: always                    # ← 改为 always
+    restart: always
     ports:
-      - "127.0.0.1:27017:27017"       # ← 只监听本地
+      - "127.0.0.1:27017:27017"
     environment:
       MONGO_INITDB_DATABASE: todolist_db
-      MONGO_INITDB_ROOT_USERNAME: admin              # ← 添加用户名
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}  # ← 添加密码
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
     volumes:
       - mongo_data:/data/db
       - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     networks:
       - todolist_network
+    # ✅ 添加健康检查
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   # FastAPI 后端
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod      # ← 使用生产 Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: todolist_backend
-    restart: always                    # ← 改为 always
+    restart: always
     ports:
-      - "127.0.0.1:8000:8000"         # ← 只监听本地
+      - "127.0.0.1:8000:8000"
     environment:
-      # ← 添加认证信息
       - MONGODB_URL=mongodb://admin:${MONGO_PASSWORD}@mongo:27017
       - DATABASE_NAME=todolist_db
+    # ✅ 修改 depends_on，等待 MongoDB 健康
     depends_on:
-      - mongo
-    # ← 移除 volumes（不需要热重载）
+      mongo:
+        condition: service_healthy
     networks:
       - todolist_network
 
@@ -42,14 +49,13 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.frontend.prod  # ← 使用生产 Dockerfile
+      dockerfile: Dockerfile.frontend.prod
     container_name: todolist_frontend
-    restart: always                         # ← 改为 always
+    restart: always
     ports:
-      - "127.0.0.1:3000:80"                # ← 标准端口，只监听本地
+      - "127.0.0.1:3000:80"
     depends_on:
       - backend
-    # ← 移除 volumes 和环境变量
     networks:
       - todolist_network
 
