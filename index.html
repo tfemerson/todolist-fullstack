@@ -2,11 +2,145 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智能待办事项清单 - SolidJS</title>
+    <!-- 视口设置：确保移动端正确显示 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- 页面标题 -->
+    <title>智能待办事项清单</title>
+    
+    <!-- PWA 配置 -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- 主题颜色：状态栏颜色 -->
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- iOS Safari 特殊配置 -->
+    <!-- 使用新的 mobile-web-app-capable 替代已弃用的 apple-mobile-web-app-capable -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="待办清单">
+    
+    <!-- iOS 图标（Safari不读取manifest，需要单独配置） -->
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    
+    <!-- 网站图标 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-192.png">
+    
+    <!-- SEO 描述 -->
+    <meta name="description" content="智能待办清单 - 高效管理您的每日任务，让生活更有条理">
+    
+    <!-- 禁止自动检测电话号码（防止误识别） -->
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- 预连接到API服务器（加速首次请求） -->
+    <link rel="preconnect" href="https://task.tudou168.com">
 </head>
 <body>
+    <!-- 应用根节点 -->
     <div id="root"></div>
+    
+    <!-- 主应用脚本 -->
     <script type="module" src="/src/index.tsx"></script>
+    
+    <!-- Service Worker 注册脚本 -->
+    <script>
+        // ============================================
+        // Service Worker 注册和管理
+        // ============================================
+        
+        // 检查浏览器是否支持 Service Worker
+        if ('serviceWorker' in navigator) {
+            // 页面加载完成后注册 Service Worker
+            window.addEventListener('load', async () => {
+                try {
+                    // 注册 Service Worker
+                    const registration = await navigator.serviceWorker.register('/sw.js', {
+                        scope: '/'
+                    });
+                    
+                    console.log('✅ Service Worker 注册成功:', registration.scope);
+                    
+                    // 检查是否有更新
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        console.log('🔄 发现新版本 Service Worker');
+                        
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // 有新版本可用，提示用户刷新
+                                if (confirm('发现新版本，是否立即更新？')) {
+                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('❌ Service Worker 注册失败:', error);
+                }
+            });
+            
+            // 监听 Service Worker 控制权变化
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('🔄 Service Worker 已更新，页面将刷新');
+            });
+        } else {
+            console.log('⚠️ 当前浏览器不支持 Service Worker');
+        }
+        
+        // ============================================
+        // PWA 安装提示处理
+        // ============================================
+        
+        // 存储安装提示事件
+        let deferredPrompt = null;
+        
+        // 监听 beforeinstallprompt 事件
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('📱 PWA 可以安装');
+            // 阻止默认的安装提示
+            e.preventDefault();
+            // 保存事件，稍后使用
+            deferredPrompt = e;
+            
+            // 你可以在这里显示自定义的安装按钮
+            // showInstallButton();
+        });
+        
+        // 监听安装成功事件
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA 安装成功！');
+            deferredPrompt = null;
+        });
+        
+        // 提供一个全局函数，用于触发安装
+        window.installPWA = async () => {
+            if (deferredPrompt) {
+                // 显示安装提示
+                deferredPrompt.prompt();
+                // 等待用户响应
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log('用户选择:', outcome);
+                deferredPrompt = null;
+            } else {
+                alert('当前无法安装，请使用浏览器菜单中的"添加到主屏幕"选项');
+            }
+        };
+        
+        // ============================================
+        // 网络状态监听
+        // ============================================
+        
+        window.addEventListener('online', () => {
+            console.log('🌐 网络已连接');
+            document.body.classList.remove('offline');
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('📴 网络已断开');
+            document.body.classList.add('offline');
+        });
+    </script>
 </body>
-</html> 
+</html>

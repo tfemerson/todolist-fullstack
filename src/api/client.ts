@@ -1,8 +1,10 @@
 // API客户端 - 处理与后端的HTTP通信
 import { Task } from '../store/TaskStore';
 
-// 从环境变量获取API基础URL，开发环境默认使用localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL ||(import.meta.env.PROD ? '/api' : 'http://localhost:8000');
+// 从环境变量获取API基础URL
+// 开发环境：使用 localhost:8000（Vite 会代理 /api 请求）
+// 生产环境：使用空字符串（相对路径，由Nginx或Vite preview代理）
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 // API响应类型定义
 export interface TaskResponse {

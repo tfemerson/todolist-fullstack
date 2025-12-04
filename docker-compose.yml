@@ -32,9 +32,9 @@ services:
       - DATABASE_NAME=todolist_db
     depends_on:
       - mongo
-    volumes:
-      # 开发时代码热重载
-      - ./backend:/app
+    # 注释掉 volumes 以避免覆盖镜像内容
+    # volumes:
+    #   - ./backend:/app
     networks:
       - todolist_network
 
@@ -51,10 +51,11 @@ services:
       - VITE_API_URL=http://localhost:8000
     depends_on:
       - backend
-    volumes:
-      # 开发时代码热重载
-      - .:/app
-      - /app/node_modules
+    # 注释掉 volumes 以避免覆盖镜像内容
+    # 如果需要热重载开发，请使用本地 npm run dev
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
     networks:
       - todolist_network
 
