@@ -533,3 +533,96 @@ body {
 .connection-status.offline {
     color: #e74c3c;
 } 
+
+/* ============================================
+   PWA 离线状态样式
+   ============================================ */
+
+/* 离线状态时的全局提示 */
+body.offline::before {
+    content: '📴 当前处于离线状态';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 14px;
+    z-index: 9999;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* 离线状态时调整主容器位置 */
+body.offline .container {
+    margin-top: 40px;
+}
+
+/* PWA 安装提示按钮样式 */
+.pwa-install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 1000;
+    animation: bounce 2s infinite;
+    border: none;
+}
+
+.pwa-install-prompt:hover {
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    50% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+/* 安装成功提示 */
+.install-success {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 10000;
+}
+
+.install-success h3 {
+    color: #27ae60;
+    margin-bottom: 10px;
+}
+
+/* 独立模式下隐藏安装提示 */
+@media (display-mode: standalone) {
+    .pwa-install-prompt {
+        display: none;
+    }
+}
