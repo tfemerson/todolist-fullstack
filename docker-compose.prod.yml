@@ -50,6 +50,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend.prod
+      args:
+      - VITE_API_URL= 
     container_name: todolist_frontend
     restart: always
     ports:

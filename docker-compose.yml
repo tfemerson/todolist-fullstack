@@ -42,13 +42,15 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile.frontend.prod  # ✅ 改为使用生产版本
+      args:
+        - VITE_API_URL=http://43.135.155.215:8000
     container_name: todolist_frontend
     restart: unless-stopped
     ports:
-      - "3100:3000"
+      - "3100:80"
     environment:
-      - VITE_API_URL=http://localhost:8000
+      - VITE_API_URL=http://43.135.155.215:8000
     depends_on:
       - backend
     # 注释掉 volumes 以避免覆盖镜像内容

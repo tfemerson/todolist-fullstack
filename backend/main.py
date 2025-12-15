@@ -32,11 +32,13 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # 原始前端端口
-        "http://localhost:3100",  # 新的前端端口
+        "http://localhost:3000",  # 本地开发端口
+        "http://localhost:3100",  # 本地 Docker 端口
         "http://127.0.0.1:3100",  # 备用地址
-        "https://task.tudou168.com",  # ← 添加你的生产域名
-        "http://task.tudou168.com",   # ← HTTP 访问
+        "http://43.135.155.215:3100",  # ✅ VPS 前端地址
+        "http://43.135.155.215:3000",  # ✅ 备用端口
+        "https://task.tudou168.com",  # 生产域名（如果有）
+        "http://task.tudou168.com",   # HTTP 访问
     ],
     allow_credentials=True,
     allow_methods=["*"],  # 允许所有HTTP方法
